@@ -18,8 +18,9 @@ class Agent:
         self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
         self.model = Linear_QNet(11, 256, 3)
+        self.model.load() #load the model weights if they exist
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
-
+        self.move_history = deque(maxlen=10) #history buffer to prevent loops
 
     def get_state(self, game):
         head = game.snake[0]
@@ -99,6 +100,21 @@ class Agent:
 
         return final_move
 
+    def record_move(self,position):
+        self.move_history.append(position)
+    
+    def detect_loop(self):
+        if len(self.move_history) >= self.move_history.maxlen:
+            #check if last few positions are repetitive
+            last_positions = list(self.move_history)
+            if last_positions.count(last_positions[0])==len(last_positions):
+                return True
+        return False
+    
+    def break_loop(self):
+        #randomly select a different move to break the loop
+        return [random.randint(0,1) for _ in range(3)]
+
 
 def train():
     plot_scores = []
@@ -113,6 +129,13 @@ def train():
 
         # get move
         final_move = agent.get_action(state_old)
+
+        agent.record_move(game.head) #record the current position
+
+        #check for loops and possibly break them
+        if agent.detect_loop():
+            print("Loop detected, breaking...")
+            final_move = agent.break_loop()
 
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
@@ -129,6 +152,7 @@ def train():
             game.reset()
             agent.n_games += 1
             agent.train_long_memory()
+            agent.move_history.clear() #clear history on game end
 
             if score > record:
                 record = score
