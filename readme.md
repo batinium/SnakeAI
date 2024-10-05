@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The AI Snake Game is a Python-based application that leverages deep learning techniques to train a snake to play the game autonomously. Using PyTorch and a custom reinforcement learning algorithm, the snake learns to navigate the game environment, avoid collisions, and maximize its score.
+The AI Snake Game is a Python-based application that uses deep learning techniques to train a snake to play the game autonomously. Using PyTorch and a custom reinforcement learning algorithm, the snake learns to navigate the game environment, avoid collisions, and maximize its score. Currently it cannot detect its full body, so it can still collide with itself and gets into a loop.
 
 ## Features
 
